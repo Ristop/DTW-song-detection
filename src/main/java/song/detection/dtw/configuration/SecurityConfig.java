@@ -1,4 +1,4 @@
-package song.detection.dtw.configurations;
+package song.detection.dtw.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
