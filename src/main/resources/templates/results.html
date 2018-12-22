@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DTW results</title>
+</head>
+<body>
+
+<table class="table table-hover display">
+    <thead>
+    <tr>
+        <th>File name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!--/*@thymesVar id="results" type="song.detection.dtw.dto.UploadResultsDTO"*/-->
+    <tr th:each="dto, int : ${results.getResultDTOList()}">
+        <td th:text="${dto.getFileName()}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
