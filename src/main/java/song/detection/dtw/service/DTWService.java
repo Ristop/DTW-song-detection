@@ -57,9 +57,40 @@ public class DTWService {
         }
     }
 
-    private int distance(double[] song1, double[] song2) {
-        // TODO: https://stackoverflow.com/questions/8138526/getting-mp3-audio-signal-as-array-in-java ANY USE?
-        // TODO: implement
-        return -1;
+    private double distance(double[] song1, double[] song2) {
+        double[][] dtw = new double[song2.length + 1][song1.length + 1];
+
+        // init
+        for (int i = 0; i <= song2.length; i++) {
+            dtw[i][0] = Double.MAX_VALUE;
+        }
+
+        for (int j = 0; j <= song1.length; j++) {
+            dtw[0][j] = Double.MAX_VALUE;
+        }
+
+        dtw[0][0] = 0;
+
+        for (int j = 1; j <= song1.length; j++) {
+            for (int i = 1; i <= song2.length; i++) {
+
+                double min1 = dtw[i - 1][j - 1];
+                double min2 = dtw[i - 1][j];
+                double min3 = dtw[i][j - 1];
+
+                dtw[i][j] = dist(song1[j - 1], song2[i - 1]) + min(min1, min2, min3);
+            }
+        }
+
+        return dtw[song2.length - 1][song1.length - 1];
     }
+
+    private static double min(double min1, double min2, double min3) {
+        return Math.min(Math.min(min1, min2), min3);
+    }
+
+    private static double dist(double a, double b) {
+        return Math.abs(a - b);
+    }
+
 }
