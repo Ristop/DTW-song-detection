@@ -37,7 +37,7 @@ public class DTWService {
         try {
             return file.getBytes();
         } catch (IOException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -55,5 +55,11 @@ public class DTWService {
         } catch (IOException | TikaException | SAXException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private int DTWDistance(double[] song1, double[] song2) {
+        // TODO: https://stackoverflow.com/questions/8138526/getting-mp3-audio-signal-as-array-in-java ANY USE?
+        // TODO: implement
+        return -1;
     }
 }
