@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,10 +77,13 @@ public class DTWService {
                 .map(array -> array.stream().mapToDouble(Short::doubleValue).toArray())
                 .collect(Collectors.toList());
 
-        // TODO: rm. This compares DTW with itself. Only for testing.
-        System.err.println(distance(audioContents.get(0), audioContents.get(0)));
 
-        return new UploadResultsDTO(files.stream().map(this::convertToDTO).collect(Collectors.toList()));
+        byte[] track1Raw = files.get(0);
+        byte[] track2Raw = files.get(1);
+
+        String dtw = "s";String.valueOf(distance(audioContents.get(0), audioContents.get(1)));
+
+        return new UploadResultsDTO(Collections.singletonList(new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw)));
 
     }
 
@@ -90,6 +94,7 @@ public class DTWService {
             // TODO: how do we know that this will work?
             // Source: https://stackoverflow.com/questions/12099114/decoding-mp3-files-with-jlayer
 
+            // TODO: What should be the condition to end while loop?
             Bitstream bitStream = new Bitstream(new ByteArrayInputStream(raw));
             Header frame;
             while ((frame = bitStream.readFrame()) != null) {
@@ -98,6 +103,8 @@ public class DTWService {
                 SampleBuffer samples = (SampleBuffer) decoder.decodeFrame(frame, bitStream); //returns the next 2304 samples
                 bitStream.closeFrame();
                 out.addAll(Arrays.asList(ArrayUtils.toObject(samples.getBuffer())));
+                // TODO:  More frames will fill up the RAM. RM break later.
+                break;
             }
 
             // No auto-closable support
@@ -120,15 +127,12 @@ public class DTWService {
     }
 
     // https://stackoverflow.com/questions/1645803/how-to-read-mp3-file-tags
-    private ResultDTO convertToDTO(byte[] song) {
+    private String getTitle(byte[] song) {
         try (InputStream input = new ByteArrayInputStream(song)) {
-
             Metadata metadata = new Metadata();
 
             new Mp3Parser().parse(input, new DefaultHandler(), metadata, new ParseContext());
-
-            // TODO: error handling if title not present?
-            return new ResultDTO(metadata.get("title"));
+            return metadata.get("title");
 
         } catch (IOException | TikaException | SAXException e) {
             throw new RuntimeException(e);

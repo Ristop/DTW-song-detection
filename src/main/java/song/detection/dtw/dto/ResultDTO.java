@@ -8,5 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResultDTO {
-    private String fileName;
+    private String trackName1;
+    private String trackName2;
+    private String dtw;
 }

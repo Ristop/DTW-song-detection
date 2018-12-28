@@ -13,13 +13,17 @@
 <table class="table table-dark">
     <thead>
     <tr>
-        <th>File name</th>
+        <th>Track 1</th>
+        <th>Track 2</th>
+        <th>DTW</th>
     </tr>
     </thead>
     <tbody>
     <!--/*@thymesVar id="results" type="song.detection.dtw.dto.UploadResultsDTO"*/-->
     <tr th:each="dto, int : ${results.getResultDTOList()}">
-        <td th:text="${dto.getFileName()}"></td>
+        <td th:text="${dto.getTrackName1()}"></td>
+        <td th:text="${dto.getTrackName2()}"></td>
+        <td th:text="${dto.getDtw()}"></td>
     </tr>
     </tbody>
 </table>
