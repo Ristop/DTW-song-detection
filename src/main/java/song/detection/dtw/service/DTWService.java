@@ -1,7 +1,9 @@
 package song.detection.dtw.service;
 
+import javazoom.jl.decoder.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
@@ -17,6 +19,8 @@ import song.detection.dtw.dto.UploadResultsDTO;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,38 +30,15 @@ import java.util.stream.Collectors;
 public class DTWService {
 
 
-    public UploadResultsDTO analyzeTracks(List<MultipartFile> uploads) {
-        List<byte[]> files = uploads.stream().map(this::uploadToBytes).collect(Collectors.toList());
-        return new UploadResultsDTO(files.stream().map(this::convertToDTO).collect(Collectors.toList()));
+    private static double min(double min1, double min2, double min3) {
+        return Math.min(Math.min(min1, min2), min3);
     }
 
-
-    private byte[] uploadToBytes(MultipartFile file) {
-        // TODO: Do something nice, when somebody tries to break the app.
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private static double dist(double a, double b) {
+        return Math.abs(a - b);
     }
 
-    // https://stackoverflow.com/questions/1645803/how-to-read-mp3-file-tags
-    private ResultDTO convertToDTO(byte[] song) {
-        try (InputStream input = new ByteArrayInputStream(song)) {
-
-            Metadata metadata = new Metadata();
-
-            new Mp3Parser().parse(input, new DefaultHandler(), metadata, new ParseContext());
-
-            // TODO: error handling if title not present?
-            return new ResultDTO(metadata.get("title"));
-
-        } catch (IOException | TikaException | SAXException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private double distance(double[] song1, double[] song2) {
+    private static double distance(double[] song1, double[] song2) {
         double[][] dtw = new double[song2.length + 1][song1.length + 1];
 
         // init
@@ -85,12 +66,71 @@ public class DTWService {
         return dtw[song2.length - 1][song1.length - 1];
     }
 
-    private static double min(double min1, double min2, double min3) {
-        return Math.min(Math.min(min1, min2), min3);
+    public UploadResultsDTO analyzeTracks(List<MultipartFile> uploads) {
+        List<byte[]> files = uploads.stream().map(this::uploadToBytes).collect(Collectors.toList());
+
+        List<double[]> audioContents = files.stream()
+                .map(this::getAudio)
+                .map(array -> array.stream().mapToDouble(Short::doubleValue).toArray())
+                .collect(Collectors.toList());
+
+        // TODO: rm. This compares DTW with itself. Only for testing.
+        System.err.println(distance(audioContents.get(0), audioContents.get(0)));
+
+        return new UploadResultsDTO(files.stream().map(this::convertToDTO).collect(Collectors.toList()));
+
     }
 
-    private static double dist(double a, double b) {
-        return Math.abs(a - b);
+    private List<Short> getAudio(byte[] raw) {
+        List<Short> out = new ArrayList<>();
+
+        try {
+            // TODO: how do we know that this will work?
+            // Source: https://stackoverflow.com/questions/12099114/decoding-mp3-files-with-jlayer
+
+            Bitstream bitStream = new Bitstream(new ByteArrayInputStream(raw));
+            Header frame;
+            while ((frame = bitStream.readFrame()) != null) {
+
+                Decoder decoder = new Decoder();
+                SampleBuffer samples = (SampleBuffer) decoder.decodeFrame(frame, bitStream); //returns the next 2304 samples
+                bitStream.closeFrame();
+                out.addAll(Arrays.asList(ArrayUtils.toObject(samples.getBuffer())));
+            }
+
+            // No auto-closable support
+            bitStream.close();
+
+            return out;
+        } catch (BitstreamException | DecoderException e) {
+            // TODO: handle
+            throw new RuntimeException(e);
+        }
+    }
+
+    private byte[] uploadToBytes(MultipartFile file) {
+        // TODO: Do something nice, when somebody tries to break the app.
+        try {
+            return file.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // https://stackoverflow.com/questions/1645803/how-to-read-mp3-file-tags
+    private ResultDTO convertToDTO(byte[] song) {
+        try (InputStream input = new ByteArrayInputStream(song)) {
+
+            Metadata metadata = new Metadata();
+
+            new Mp3Parser().parse(input, new DefaultHandler(), metadata, new ParseContext());
+
+            // TODO: error handling if title not present?
+            return new ResultDTO(metadata.get("title"));
+
+        } catch (IOException | TikaException | SAXException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
