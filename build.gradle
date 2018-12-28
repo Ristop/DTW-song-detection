@@ -19,7 +19,7 @@ apply plugin: 'findbugs'
 
 group = 'song.detection'
 version = '0.0.1'
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -34,10 +34,8 @@ dependencies {
     runtimeOnly('com.h2database:h2')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.springframework.security:spring-security-test')
+
     compile('org.apache.tika:tika-parsers:1.19.1')
-    //   compile 'com.googlecode.soundlibs:mp3spi:1.9.5-1'
-    // https://mvnrepository.com/artifact/com.googlecode.soundlibs/jlayer
-    compile group: 'com.googlecode.soundlibs', name: 'jlayer', version: '1.0.1.4'
-
-
+    compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
+    compile('com.googlecode.soundlibs:jlayer:1.0.1-1')
 }
