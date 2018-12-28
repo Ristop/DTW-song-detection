@@ -67,8 +67,10 @@ public class DTWService {
     }
 
     public UploadResultsDTO analyzeTracks(List<MultipartFile> uploads) {
+        // Get original upload as bytes.
         List<byte[]> files = uploads.stream().map(this::uploadToBytes).collect(Collectors.toList());
 
+        // Get frames as doubles.
         List<double[]> audioContents = files.stream()
                 .map(this::getAudio)
                 .map(array -> array.stream().mapToDouble(Short::doubleValue).toArray())
