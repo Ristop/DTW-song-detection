@@ -14,8 +14,8 @@
     <form th:action="@{/}" th:object="${dto}" enctype="multipart/form-data" method="post">
 
         <div class="form-group">
-            <label th:for="${#fields.idFromName('files')}">Choose .mp3 files</label>
-            <input multiple="multiple" th:field="*{files}" type="file" required="required" class="form-control-file"/>
+            <label th:for="${#fields.idFromName('files')}">Choose 2 .mp3 files</label>
+            <input multiple="multiple" th:field="*{files}" type="file" accept=".mp3" required="required" class="form-control-file"/>
         </div>
 
         <input type="submit" class="btn btn-primary" value="DTW!"/>

@@ -81,7 +81,7 @@ public class DTWService {
         byte[] track1Raw = files.get(0);
         byte[] track2Raw = files.get(1);
 
-        String dtw = "s";String.valueOf(distance(audioContents.get(0), audioContents.get(1)));
+        String dtw = String.valueOf(distance(audioContents.get(0), audioContents.get(1)));
 
         return new UploadResultsDTO(Collections.singletonList(new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw)));
 
