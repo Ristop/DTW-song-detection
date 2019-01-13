@@ -29,6 +29,7 @@ import static javax.sound.sampled.AudioFormat.Encoding.PCM_FLOAT;
 @Slf4j
 public class DTWService {
 
+    private static final int SAMPLE_RATE = 200;
 
     private static float min(float min1, float min2, float min3) {
         return Math.min(Math.min(min1, min2), min3);
@@ -129,7 +130,7 @@ public class DTWService {
         float[] arr1 = nonNegative(audioContents.get(0));
         float[] arr2 = nonNegative(audioContents.get(1));
 
-        int rate = Integer.max(arr1.length, arr2.length) / 100;
+        int rate = Integer.max(arr1.length, arr2.length) / SAMPLE_RATE;
         float[] song1 = reduce(arr1, rate);
         float[] song2 = reduce(arr2, rate);
 
