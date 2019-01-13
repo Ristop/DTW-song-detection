@@ -30,9 +30,7 @@ public class FileManagerController {
     public String uploadSong(@ModelAttribute("dto") @Valid FileUploadDTO dto, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            // TODO:  handle invalid upload
-            throw new RuntimeException();
-            // return "upload";
+            throw new RuntimeException("Expected 2 valid .mp3 files for DTW!");
         }
 
         log.info("Somebody uploaded {} files.", dto.getFiles().size());

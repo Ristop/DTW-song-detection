@@ -99,24 +99,22 @@ public class DTWService {
         return vectorDTOS;
     }
 
-    //TODO: cite this part
-    private static short[] shortMe(byte[] bytes) {
-        short[] out = new short[bytes.length / 2]; // will drop last byte if odd number
+    // https://stackoverflow.com/questions/10324355/how-to-convert-16-bit-pcm-audio-byte-array-to-double-or-float-array
+    private static float[] toFloat(byte[] bytes) {
+        short[] shorts = new short[bytes.length / 2]; // will drop last byte if odd number
         ByteBuffer bb = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < out.length; i++) {
-            out[i] = bb.getShort();
+
+        for (int i = 0; i < shorts.length; i++) {
+            shorts[i] = bb.getShort();
         }
-        return out;
+
+        float[] floats = new float[shorts.length];
+        for (int i = 0; i < shorts.length; i++) {
+            floats[i] = shorts[i];
+        }
+        return floats;
     }
 
-    //TODO: cite this part
-    private static float[] floatMe(short[] pcms) {
-        float[] floaters = new float[pcms.length];
-        for (int i = 0; i < pcms.length; i++) {
-            floaters[i] = pcms[i];
-        }
-        return floaters;
-    }
 
     public ResultDTO analyzeTracks(List<MultipartFile> uploads) {
         // Get original upload as bytes.
@@ -229,19 +227,17 @@ public class DTWService {
             byte[] bytes = din.readAllBytes();
             din.close();
 
-            return floatMe(shortMe(bytes));
+            return toFloat(bytes);
         } catch (UnsupportedAudioFileException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private byte[] uploadToBytes(MultipartFile file) {
-        // TODO: Do something nice, when somebody tries to break the app.
         try {
             return file.getBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 }
