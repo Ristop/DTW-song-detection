@@ -11,4 +11,6 @@ public class ResultDTO {
     private String trackName1;
     private String trackName2;
     private String dtw;
+    private float[] trackFloats1;
+    private float[] trackFloats2;
 }
