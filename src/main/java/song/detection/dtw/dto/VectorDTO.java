@@ -14,7 +14,7 @@ public class VectorDTO {
 
     private String name;
     private List<PointDTO> data = new ArrayList<>();
-    private String color = "#78909C";
-    private boolean showInLegend = false;
+    private String color;
+    private boolean showInLegend;
 
 }

@@ -11,5 +11,6 @@ public class TrackDTO {
 
     private String name;
     private float[] data;
+    private String color;
 
 }

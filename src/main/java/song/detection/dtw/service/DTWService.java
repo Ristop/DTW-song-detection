@@ -77,7 +77,7 @@ public class DTWService {
             PointDTO point1DTO = new PointDTO(bi - 1, b[bi - 1] + 1);
             PointDTO point2DTO = new PointDTO(ai - 1, a[ai - 1]);
 
-            VectorDTO vectorDTO = new VectorDTO("blah", List.of(point1DTO, point2DTO), "#78909C", false);
+            VectorDTO vectorDTO = new VectorDTO("", List.of(point1DTO, point2DTO), "#B0BEC5", false);
             vectorDTOS.add(vectorDTO);
 
             // System.out.println(bi + "\t" + b[bi - 1] + "\t" + ai + "\t" + a[ai - 1]);
@@ -142,8 +142,8 @@ public class DTWService {
             song2[i] = song2[i] + 1;
         }
 
-        TrackDTO trackDTO1 = new TrackDTO(uploads.get(0).getOriginalFilename(), song1);
-        TrackDTO trackDTO2 = new TrackDTO(uploads.get(1).getOriginalFilename(), song2);
+        TrackDTO trackDTO1 = new TrackDTO(uploads.get(0).getOriginalFilename(), song1, "#03A9F4");
+        TrackDTO trackDTO2 = new TrackDTO(uploads.get(1).getOriginalFilename(), song2, "#009688");
         return new ResultDTO(List.of(trackDTO1, trackDTO2), result.getVectorDTOList(), result.getDistance());
 
     }
