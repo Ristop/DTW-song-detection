@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import song.detection.dtw.dto.FileUploadDTO;
-import song.detection.dtw.dto.UploadResultsDTO;
+import song.detection.dtw.dto.ResultDTO;
 import song.detection.dtw.service.DTWService;
 
 import javax.validation.Valid;
@@ -37,7 +37,7 @@ public class FileManagerController {
 
         log.info("Somebody uploaded {} files.", dto.getFiles().size());
 
-        UploadResultsDTO results = dtwService.analyzeTracks(dto.getFiles());
+        ResultDTO results = dtwService.analyzeTracks(dto.getFiles());
         model.addAttribute("results", results);
 
         return "results";

@@ -7,26 +7,44 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 <body>
+<!--/*@thymesVar id="results" type="song.detection.dtw.dto.ResultDTO"*/-->
 
-<table class="table table-dark">
-    <thead>
-    <tr>
-        <th>Track 1</th>
-        <th>Track 2</th>
-        <th>DTW</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!--/*@thymesVar id="results" type="song.detection.dtw.dto.UploadResultsDTO"*/-->
-    <tr th:each="dto, int : ${results.getResultDTOList()}">
-        <td th:text="${dto.getTrackName1()}"></td>
-        <td th:text="${dto.getTrackName2()}"></td>
-        <td th:text="${dto.getDtw()}"></td>
-    </tr>
-    </tbody>
-</table>
+<div id="songDtwChart"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
 
+    function drawSalesByTypeChart() {
+        Highcharts.chart('songDtwChart', {
+            chart: {
+
+            },
+            title: {
+                text: "DTW: " + [[${results.getDtw()}]]
+            },
+
+            plotOptions: {
+                column: {
+                    depth: 60,
+                    stacking: true,
+                    grouping: false,
+                    groupZPadding: 10
+                }
+            },
+            series: [{
+                name: 'Track 1 ' + [[${results.getTrackName1()}]],
+                data: [[${results.getTrackFloats1()}]]
+            }, {
+                name: 'Track 2 ' + [[${results.getTrackName2()}]],
+                data: [[${results.trackFloats2}]]
+            }]
+        });
+    }
+
+    drawSalesByTypeChart();
+    /*]]>*/
+</script>
 </body>
 </html>

@@ -13,13 +13,15 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import song.detection.dtw.Plotter;
 import song.detection.dtw.dto.ResultDTO;
-import song.detection.dtw.dto.UploadResultsDTO;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -112,7 +114,7 @@ public class DTWService {
         return floaters;
     }
 
-    public UploadResultsDTO analyzeTracks(List<MultipartFile> uploads) {
+    public ResultDTO analyzeTracks(List<MultipartFile> uploads) {
         // Get original upload as bytes.
         List<byte[]> files = uploads.stream().map(this::uploadToBytes).collect(Collectors.toList());
 
@@ -145,7 +147,7 @@ public class DTWService {
         System.out.printf("dexp: %.0f\n", distance);
         String dtw = String.valueOf(distance);
 
-        return new UploadResultsDTO(Collections.singletonList(new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw)));
+        return new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw, song1, song2);
 
     }
 
