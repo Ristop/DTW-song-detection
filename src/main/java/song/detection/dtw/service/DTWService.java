@@ -11,12 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import song.detection.dtw.dto.PointDTO;
 import song.detection.dtw.dto.ResultDTO;
+import song.detection.dtw.dto.TrackDTO;
+import song.detection.dtw.dto.VectorDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -41,7 +45,7 @@ public class DTWService {
         return Math.abs(a - b);
     }
 
-    private static float distance(float[] song1, float[] song2) {
+    private static DTWResult distance(float[] song1, float[] song2) {
         float[][] dtw = new float[song2.length + 1][song1.length + 1];
 
         // init
@@ -66,9 +70,7 @@ public class DTWService {
             }
         }
 
-        //printFinalMatrix(dtw, song1, song2);
-
-        return dtw[song2.length][song1.length];
+        return new DTWResult(dtw[song2.length][song1.length], getStretchVectors(dtw, song1, song2));
     }
 
     private static void printFinalMatrix(float[][] matrix, float[] a, float[] b) {
@@ -88,6 +90,38 @@ public class DTWService {
             }
             System.out.println();
         }
+    }
+
+    private static List<VectorDTO> getStretchVectors(float[][] matrix, float[] a, float[] b) {
+        int ai = a.length;
+        int bi = b.length;
+        List<VectorDTO> vectorDTOS = new ArrayList<>();
+        while (ai != 0 && bi != 0) {
+
+
+            PointDTO point1DTO = new PointDTO(bi - 1, b[bi - 1] + 1);
+            PointDTO point2DTO = new PointDTO(ai - 1, a[ai - 1]);
+
+            VectorDTO vectorDTO = new VectorDTO("blah", List.of(point1DTO, point2DTO), "#78909C", false);
+            vectorDTOS.add(vectorDTO);
+
+            System.out.println(bi + "\t" + b[bi - 1] + "\t" + ai + "\t" + a[ai - 1]);
+
+            float di = matrix[bi - 1][ai - 1];
+            float up = matrix[bi][ai - 1];
+            float left = matrix[bi - 1][ai];
+
+            if (di <= up && di <= left) {
+                bi--;
+                ai--;
+            } else if (up <= di && up <= left) {
+                ai--;
+            } else if (left <= di && left <= di) {
+                bi--;
+            }
+
+        }
+        return vectorDTOS;
     }
 
     //TODO: cite this part
@@ -132,11 +166,16 @@ public class DTWService {
         normalize(song1);
         normalize(song2);
 
-        float distance = distance(song1, song2);
-        
-        String dtw = String.valueOf(distance);
+        DTWResult result = distance(song1, song2);
 
-        return new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw, song1, song2);
+        for (int i = 0; i < song2.length; i++) {
+            song2[i] = song2[i] + 1;
+        }
+
+        TrackDTO trackDTO1 = new TrackDTO(getTitle(track1Raw), song1);
+        TrackDTO trackDTO2 = new TrackDTO(getTitle(track2Raw), song2);
+        List<TrackDTO> trackDTO11 = List.of(trackDTO1, trackDTO2);
+        return new ResultDTO(trackDTO11, result.getVectorDTOList(), result.getDistance());
 
     }
 
