@@ -12,11 +12,13 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
             integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <link href="main.css" rel="stylesheet">
+
 </head>
 <body>
 <!--/*@thymesVar id="results" type="song.detection.dtw.dto.ResultDTO"*/-->
 <div class="container">
-    <div id="songDtwChart"></div>
+    <div class="chart" id="songDtwChart"></div>
     <script th:inline="javascript">
 
 
@@ -25,8 +27,8 @@
 
         function drawSalesByTypeChart() {
             Highcharts.chart('songDtwChart', {
-                chart: {
-                },
+                chart: {},
+                height: 700,
                 credits: {
                     enabled: false
                 },
@@ -65,20 +67,8 @@
         drawSalesByTypeChart();
         /*]]>*/
     </script>
-
-    <!--/*@thymesVar id="dto" type="song.detection.dtw.dto.FileUploadDTO"*/-->
-    <form th:action="@{/}" th:object="${dto}" enctype="multipart/form-data" method="post">
-
-        <div class="form-group">
-            <label th:for="${#fields.idFromName('files')}">Choose 2 .mp3 files</label>
-            <input multiple="multiple" th:field="*{files}" type="file" accept=".mp3" required="required"
-                   class="form-control-file"/>
-        </div>
-
-        <input type="submit" class="btn btn-primary" value="DTW!"/>
-    </form>
-
-
+    <div class="text-center"><a href="/" class="btn btn-primary">Retry</a>
+    </div>
 </div>
 
 </body>
