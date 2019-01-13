@@ -17,6 +17,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 
+
 group = 'song.detection'
 version = '0.0.1'
 sourceCompatibility = 1.11
@@ -38,4 +39,5 @@ dependencies {
     compile('org.apache.tika:tika-parsers:1.19.1')
     compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
     compile('com.googlecode.soundlibs:jlayer:1.0.1-1')
+    compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
 }

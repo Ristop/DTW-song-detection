@@ -11,13 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import song.detection.dtw.Plotter;
 import song.detection.dtw.dto.ResultDTO;
 import song.detection.dtw.dto.UploadResultsDTO;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +22,10 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import static javax.sound.sampled.AudioFormat.Encoding.PCM_FLOAT;
 
@@ -47,11 +48,11 @@ public class DTWService {
 
         // init
         for (int i = 0; i <= song2.length; i++) {
-            dtw[i][0] = Float.MAX_VALUE;
+            dtw[i][0] = 10000;
         }
 
         for (int j = 0; j <= song1.length; j++) {
-            dtw[0][j] = Float.MAX_VALUE;
+            dtw[0][j] = 10000;
         }
 
         dtw[0][0] = 0;
@@ -102,10 +103,57 @@ public class DTWService {
         byte[] track1Raw = files.get(0);
         byte[] track2Raw = files.get(1);
 
-        String dtw = String.valueOf(distance(audioContents.get(0), audioContents.get(1)));
+        float[] song1 = reduce(audioContents.get(0), 10000);
+        float[] song2 = reduce(audioContents.get(1), 10000);
+
+        normalize(song1);
+        normalize(song2);
+
+        Plotter plotter = new Plotter("test");
+        plotter.plot(song1);
+
+        Plotter plotter2 = new Plotter("test");
+        plotter2.plot(song2);
+
+        float distance = distance(song1, song2);
+        System.out.printf("dexp: %.0f\n", distance);
+        String dtw = String.valueOf(distance);
 
         return new UploadResultsDTO(Collections.singletonList(new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw)));
 
+    }
+
+    private void normalize(float[] original) {
+        float max = Float.MIN_VALUE;
+        float min = Float.MAX_VALUE;
+
+        for (float v : original) {
+            if (max < v) {
+                max = v;
+            }
+            if (min > v) {
+                min = v;
+            }
+        }
+
+        for (int i = 0; i < original.length; i++) {
+            original[i] = (original[i] - min) / (max - min);
+        }
+    }
+
+    private float[] reduce(float[] original, int reduceTo) {
+        int originalLen = original.length;
+
+        float[] reduced = new float[reduceTo];
+
+        for (int i = 0; i < reduceTo - 1; i++) {
+            int i1 = i * (originalLen / reduceTo);
+            float v = original[i1];
+//            System.out.println(v);
+            reduced[i] = v;
+        }
+
+        return reduced;
     }
 
     // https://stackoverflow.com/questions/39736877/sample-frame-in-context-of-audioinputstream
@@ -119,13 +167,15 @@ public class DTWService {
 
 
             AudioFormat baseFormat = in.getFormat();
-            AudioFormat decodedFormat = new AudioFormat(PCM_FLOAT,
+            AudioFormat decodedFormat = new AudioFormat(
+                    PCM_FLOAT,
                     baseFormat.getSampleRate(),
-                    16,
+                    baseFormat.getSampleSizeInBits(),
                     baseFormat.getChannels(),
-                    baseFormat.getChannels() * 2,
+                    baseFormat.getChannels(),
                     baseFormat.getSampleRate(),
-                    false);
+                    baseFormat.isBigEndian()
+            );
             AudioInputStream din = AudioSystem.getAudioInputStream(decodedFormat, in);
 
 
