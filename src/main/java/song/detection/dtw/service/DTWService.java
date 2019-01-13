@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import song.detection.dtw.Plotter;
 import song.detection.dtw.dto.ResultDTO;
 
 import java.io.ByteArrayInputStream;
@@ -133,14 +132,8 @@ public class DTWService {
         normalize(song1);
         normalize(song2);
 
-        Plotter plotter = new Plotter("test");
-        plotter.plot(song1);
-
-        Plotter plotter2 = new Plotter("test");
-        plotter2.plot(song2);
-
         float distance = distance(song1, song2);
-        System.out.printf("dexp: %.0f\n", distance);
+        
         String dtw = String.valueOf(distance);
 
         return new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw, song1, song2);
