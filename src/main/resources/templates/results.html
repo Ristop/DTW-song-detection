@@ -26,12 +26,22 @@
         function drawSalesByTypeChart() {
             Highcharts.chart('songDtwChart', {
                 chart: {
-                    xAxis: {
-                        labels:
-                            {
-                                enabled: false
-                            }
-                    }
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis: {
+                    labels:
+                        {
+                            enabled: false
+                        }
+                },
+                yAxis: {
+                    title: null,
+                    labels:
+                        {
+                            enabled: false
+                        }
                 },
                 title: {
                     text: "DTW: " + [[${results.getDtw()}]]
