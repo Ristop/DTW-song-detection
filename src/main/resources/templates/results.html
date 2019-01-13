@@ -11,40 +11,53 @@
 </head>
 <body>
 <!--/*@thymesVar id="results" type="song.detection.dtw.dto.ResultDTO"*/-->
+<div class="container">
+    <div id="songDtwChart"></div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
 
-<div id="songDtwChart"></div>
-<script th:inline="javascript">
-    /*<![CDATA[*/
+        function drawSalesByTypeChart() {
+            Highcharts.chart('songDtwChart', {
+                chart: {},
+                title: {
+                    text: "DTW: " + [[${results.getDtw()}]]
+                },
 
-    function drawSalesByTypeChart() {
-        Highcharts.chart('songDtwChart', {
-            chart: {
+                plotOptions: {
+                    column: {
+                        depth: 60,
+                        stacking: true,
+                        grouping: false,
+                        groupZPadding: 10
+                    }
+                },
+                series: [{
+                    name: 'Track 1 ' + [[${results.getTrackName1()}]],
+                    data: [[${results.getTrackFloats1()}]]
+                }, {
+                    name: 'Track 2 ' + [[${results.getTrackName2()}]],
+                    data: [[${results.trackFloats2}]]
+                }]
+            });
+        }
 
-            },
-            title: {
-                text: "DTW: " + [[${results.getDtw()}]]
-            },
+        drawSalesByTypeChart();
+        /*]]>*/
+    </script>
 
-            plotOptions: {
-                column: {
-                    depth: 60,
-                    stacking: true,
-                    grouping: false,
-                    groupZPadding: 10
-                }
-            },
-            series: [{
-                name: 'Track 1 ' + [[${results.getTrackName1()}]],
-                data: [[${results.getTrackFloats1()}]]
-            }, {
-                name: 'Track 2 ' + [[${results.getTrackName2()}]],
-                data: [[${results.trackFloats2}]]
-            }]
-        });
-    }
+    <!--/*@thymesVar id="dto" type="song.detection.dtw.dto.FileUploadDTO"*/-->
+    <form th:action="@{/}" th:object="${dto}" enctype="multipart/form-data" method="post">
 
-    drawSalesByTypeChart();
-    /*]]>*/
-</script>
+        <div class="form-group">
+            <label th:for="${#fields.idFromName('files')}">Choose 2 .mp3 files</label>
+            <input multiple="multiple" th:field="*{files}" type="file" accept=".mp3" required="required" class="form-control-file"/>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="DTW!"/>
+    </form>
+
+
+</div>
+
 </body>
 </html>
