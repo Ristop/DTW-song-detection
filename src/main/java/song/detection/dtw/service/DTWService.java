@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -68,7 +69,28 @@ public class DTWService {
             }
         }
 
-        return dtw[song2.length - 1][song1.length - 1];
+        //printFinalMatrix(dtw, song1, song2);
+
+        return dtw[song2.length][song1.length];
+    }
+
+    private static void printFinalMatrix(float[][] matrix, float[] a, float[] b) {
+        System.out.print("#" + "\t" + "#" + "\t");
+        for (float anA : a) {
+            System.out.printf("%.2f\t", anA);
+        }
+        System.out.println();
+        for (int i = 0; i < matrix.length; i++) {
+            if (i == 0) {
+                System.out.print("#" + "\t");
+            } else {
+                System.out.printf("%.2f\t", b[i - 1]);
+            }
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.printf("%.2f\t", matrix[i][j]);
+            }
+            System.out.println();
+        }
     }
 
     //TODO: cite this part
@@ -103,8 +125,12 @@ public class DTWService {
         byte[] track1Raw = files.get(0);
         byte[] track2Raw = files.get(1);
 
-        float[] song1 = reduce(audioContents.get(0), 10000);
-        float[] song2 = reduce(audioContents.get(1), 10000);
+        float[] arr1 = nonNegative(audioContents.get(0));
+        float[] arr2 = nonNegative(audioContents.get(1));
+
+        int rate = Integer.max(arr1.length, arr2.length) / 100;
+        float[] song1 = reduce(arr1, rate);
+        float[] song2 = reduce(arr2, rate);
 
         normalize(song1);
         normalize(song2);
@@ -121,6 +147,21 @@ public class DTWService {
 
         return new UploadResultsDTO(Collections.singletonList(new ResultDTO(getTitle(track1Raw), getTitle(track2Raw), dtw)));
 
+    }
+
+    private float[] nonNegative(float[] arr) {
+        return toFloatArray(IntStream.range(0, arr.length)
+                .mapToDouble(i -> arr[i]).filter(i -> i > 0).toArray());
+    }
+
+    private float[] toFloatArray(double[] arr) {
+        if (arr == null) return null;
+        int n = arr.length;
+        float[] ret = new float[n];
+        for (int i = 0; i < n; i++) {
+            ret[i] = (float) arr[i];
+        }
+        return ret;
     }
 
     private void normalize(float[] original) {
@@ -141,16 +182,21 @@ public class DTWService {
         }
     }
 
-    private float[] reduce(float[] original, int reduceTo) {
+    private float[] reduce(float[] original, int reduceEvery) {
         int originalLen = original.length;
 
-        float[] reduced = new float[reduceTo];
+        float[] reduced = new float[originalLen / reduceEvery];
 
-        for (int i = 0; i < reduceTo - 1; i++) {
-            int i1 = i * (originalLen / reduceTo);
-            float v = original[i1];
-//            System.out.println(v);
-            reduced[i] = v;
+        int newI = 0;
+        for (int i = 0; i < originalLen - reduceEvery; i += reduceEvery) {
+
+            float avg = 0;
+            for (int j = 0; j < reduceEvery; j++) {
+                avg += original[i + j];
+            }
+
+            reduced[newI] = avg / reduceEvery;
+            newI++;
         }
 
         return reduced;
@@ -172,7 +218,7 @@ public class DTWService {
                     baseFormat.getSampleRate(),
                     baseFormat.getSampleSizeInBits(),
                     baseFormat.getChannels(),
-                    baseFormat.getChannels(),
+                    baseFormat.getFrameSize(),
                     baseFormat.getSampleRate(),
                     baseFormat.isBigEndian()
             );
