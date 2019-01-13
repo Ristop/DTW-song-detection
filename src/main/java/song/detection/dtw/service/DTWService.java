@@ -14,10 +14,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import song.detection.dtw.Plotter;
 import song.detection.dtw.dto.ResultDTO;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
