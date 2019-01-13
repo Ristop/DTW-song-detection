@@ -2,32 +2,25 @@ package song.detection.dtw.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.mp3.Mp3Parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 import song.detection.dtw.dto.PointDTO;
 import song.detection.dtw.dto.ResultDTO;
 import song.detection.dtw.dto.TrackDTO;
 import song.detection.dtw.dto.VectorDTO;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import static javax.sound.sampled.AudioFormat.Encoding.PCM_FLOAT;
 
@@ -73,24 +66,6 @@ public class DTWService {
         return new DTWResult(dtw[song2.length][song1.length], getStretchVectors(dtw, song1, song2));
     }
 
-    private static void printFinalMatrix(float[][] matrix, float[] a, float[] b) {
-        System.out.print("#" + "\t" + "#" + "\t");
-        for (float anA : a) {
-            System.out.printf("%.2f\t", anA);
-        }
-        System.out.println();
-        for (int i = 0; i < matrix.length; i++) {
-            if (i == 0) {
-                System.out.print("#" + "\t");
-            } else {
-                System.out.printf("%.2f\t", b[i - 1]);
-            }
-            for (int j = 0; j < matrix[i].length; j++) {
-                System.out.printf("%.2f\t", matrix[i][j]);
-            }
-            System.out.println();
-        }
-    }
 
     private static List<VectorDTO> getStretchVectors(float[][] matrix, float[] a, float[] b) {
         int ai = a.length;
@@ -105,7 +80,7 @@ public class DTWService {
             VectorDTO vectorDTO = new VectorDTO("blah", List.of(point1DTO, point2DTO), "#78909C", false);
             vectorDTOS.add(vectorDTO);
 
-            System.out.println(bi + "\t" + b[bi - 1] + "\t" + ai + "\t" + a[ai - 1]);
+            // System.out.println(bi + "\t" + b[bi - 1] + "\t" + ai + "\t" + a[ai - 1]);
 
             float di = matrix[bi - 1][ai - 1];
             float up = matrix[bi][ai - 1];
@@ -153,9 +128,6 @@ public class DTWService {
                 .collect(Collectors.toList());
 
 
-        byte[] track1Raw = files.get(0);
-        byte[] track2Raw = files.get(1);
-
         float[] arr1 = nonNegative(audioContents.get(0));
         float[] arr2 = nonNegative(audioContents.get(1));
 
@@ -172,10 +144,9 @@ public class DTWService {
             song2[i] = song2[i] + 1;
         }
 
-        TrackDTO trackDTO1 = new TrackDTO(getTitle(track1Raw), song1);
-        TrackDTO trackDTO2 = new TrackDTO(getTitle(track2Raw), song2);
-        List<TrackDTO> trackDTO11 = List.of(trackDTO1, trackDTO2);
-        return new ResultDTO(trackDTO11, result.getVectorDTOList(), result.getDistance());
+        TrackDTO trackDTO1 = new TrackDTO(uploads.get(0).getOriginalFilename(), song1);
+        TrackDTO trackDTO2 = new TrackDTO(uploads.get(1).getOriginalFilename(), song2);
+        return new ResultDTO(List.of(trackDTO1, trackDTO2), result.getVectorDTOList(), result.getDistance());
 
     }
 
@@ -269,19 +240,6 @@ public class DTWService {
         try {
             return file.getBytes();
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // https://stackoverflow.com/questions/1645803/how-to-read-mp3-file-tags
-    private String getTitle(byte[] song) {
-        try (InputStream input = new ByteArrayInputStream(song)) {
-            Metadata metadata = new Metadata();
-
-            new Mp3Parser().parse(input, new DefaultHandler(), metadata, new ParseContext());
-            return metadata.get("title");
-
-        } catch (IOException | TikaException | SAXException e) {
             throw new RuntimeException(e);
         }
     }

@@ -32,12 +32,5 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
     implementation('org.springframework.boot:spring-boot-starter-web')
     compile('org.projectlombok:lombok')
-    runtimeOnly('com.h2database:h2')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testImplementation('org.springframework.security:spring-security-test')
-
-    compile('org.apache.tika:tika-parsers:1.19.1')
     compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
-    compile('com.googlecode.soundlibs:jlayer:1.0.1-1')
-    compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
 }

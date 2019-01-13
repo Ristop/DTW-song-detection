@@ -15,10 +15,4 @@ public class ResultDTO {
     private List<TrackDTO> trackDTOS = new ArrayList<>();
     private List<VectorDTO> vectorDTOS = new ArrayList<>();
     private float dtw;
-
-//    private String trackName1;
-//    private String trackName2;
-//    private float[] trackFloats1;
-//    private float[] trackFloats2;
-
 }
